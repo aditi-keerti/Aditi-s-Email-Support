@@ -2,3 +2,25 @@ const express=require('express');
 const axios=require('axios');
 const {RedisConnection,RedisToken}=require('../middlewares/redis.middleware');
 const {getUser}=require('./googleOauth');
+const createConfig = require('../utils/config.util');
+const userRoutes=express.Router();
+userRoutes.use(express.json());
+userRoutes.use(express.urlencoded({extended:true}));
+
+userRoutes.get('/user/:email',getUser);
+userRoutes.get('/drafts/:email',async(req,res)=>{
+    try{
+        const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/drafts`;
+        const token=await RedisToken(req.params.email);
+        if(!token){
+            return res.send("Token Not Found,Please login to get token")
+        }
+        const config=createConfig(url,token);
+        const response=await axios(config);
+        res.json(response.data);
+    }catch(err){
+            res.send(err.message);
+    }
+})
+
+module.exports={userRoutes}
