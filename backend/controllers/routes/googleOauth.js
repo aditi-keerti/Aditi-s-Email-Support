@@ -54,7 +54,8 @@ const getUser=async(req,res)=>{
         const response=await axios(config);
         res.json(response.data);
     }catch(err){
-        res.send(err.message);
+        res.status(401).send(err.message);
     }
 }
+
 module.exports={googleRoutes,getUser};
