@@ -1,7 +1,7 @@
 const express=require('express');
 const axios=require('axios');
 const {RedisConnection,RedisToken}=require('../middlewares/redis.middleware');
-const {getUser}=require('./googleOauth');
+const {getUser,sendEmail,sendEmailViaQueue,analyzeAndSendEmail}=require('./googleOauth');
 const createConfig = require('../utils/config.util');
 const userRoutes=express.Router();
 userRoutes.use(express.json());
@@ -52,6 +52,10 @@ userRoutes.get('/read/:email/messages/:mesgId',async(req,res)=>{
         res.status(400).send(err.message);
     }
 });
+//Sending Emails
+userRoutes.post('/sendemail',sendEmail);
 
+userRoutes.post('/readdata/:id', sendEmailViaQueue);
+userRoutes.post('/sendmulti', analyzeAndSendEmail);
 
 module.exports={userRoutes}
